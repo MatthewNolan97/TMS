@@ -1,0 +1,166 @@
+@model IEnumerable<TMS_SharedLibrary.Models.ToyViewModel>
+@using System.IO
+
+@{
+    ViewData["Title"] = "Available Toys";
+}
+
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-5">Toy Management System</h1>
+        <div>
+            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterModal">
+                <i class="bi bi-funnel"></i> Filter
+            </button>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null) {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success!</strong> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null) {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Error!</strong> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+</div>
+
+<div class="row g-4">
+    @if (!Model.Any()) {
+        <div class="col-12">
+            <div class="alert alert-info">No toys found matching the selected filters.</div>
+        </div>
+    }
+    @foreach (var vm in Model) {
+        var item = vm.Toy;
+        var itemLoanData = vm.ToyLoan;
+        bool borrowedByCurrentStudent = vm.BorrowedByCurrentStudent;
+        int? daysLeft = vm.DaysLeft;
+        bool borrowedByAnotherStudent = !borrowedByCurrentStudent && !item.IsAvailable;
+
+        string cardClass =
+        borrowedByCurrentStudent ? "toy-card h-100 reserved" :
+        borrowedByAnotherStudent ? "toy-card h-100 disabled-card" :
+        "toy-card h-100";
+
+        <div class="col-12 col-md-6 col-lg-4">
+            <div class="@cardClass d-flex flex-column h-100">
+                <div class="toy-img-wrapper">
+                    @if (!string.IsNullOrEmpty(item.ImagePath)) {
+                       var fileName = System.IO.Path.GetFileName(item.ImagePath ?? "");
+                       var imgUrl = string.IsNullOrWhiteSpace(fileName) ? "" : Url.Content("~/toy-images/" + fileName);
+
+                       <img src="@Url.Content(imgUrl)" class="toy-img" alt="@item.Name" />
+
+                    } else {
+                        <div class="toy-img no-img">No Image</div>
+                    }
+                </div>
+
+                <div class="card-body">
+                    <h5 class="text-muted mb-2">@item.Name</h5>
+                    @if (!string.IsNullOrWhiteSpace(item.Description)) {
+                        <p class="small mb-2">@item.Description</p>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(item.Category)) {
+                        <div class="mb-1"><strong>Category:</strong> @item.Category</div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(item.Material)) {
+                        <div class="mb-1"><strong>Material:</strong> @item.Material</div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(item.AdditionalInformation)) {
+                        <div class="mb-1"><strong>Additional Info:</strong> @item.AdditionalInformation</div>
+                    }
+                    @if (!string.IsNullOrWhiteSpace(item.LocationCode)) {
+                        <div class="mb-1"><strong>Location:</strong> @item.LocationCode</div>
+                    }
+                    @if (borrowedByCurrentStudent && itemLoanData != null && daysLeft != null)
+                    {
+                        <div class="mb-1">
+                            <strong>Due Date:</strong> @itemLoanData.DueDate
+                            (
+                            @if (daysLeft == 0)
+                            {
+                                @:Due Today
+                            }
+                            else if (daysLeft > 0)
+                            {
+                                @:Due in @daysLeft days
+                            }
+                            else
+                            {
+                                <span class="text-danger">
+                                    Overdue by @Math.Abs(daysLeft.Value) days
+                                </span>
+                            }
+                            )
+                        </div>
+                    }
+                </div>
+
+                <div class="card-footer bg-white border-0 mt-auto pb-3">
+                    <div class="toy-btn-row">
+                        @if (borrowedByCurrentStudent) {
+                            <a asp-action="Return" asp-route-id="@item.ToyId" class="btn btn-sm btn-light border">Return</a>
+                        } else if (borrowedByAnotherStudent) {
+                            <button class="btn btn-sm btn-secondary border" disabled>Reserved</button>
+                        } else {
+                            <a asp-action="Borrow" asp-route-id="@item.ToyId" class="btn btn-sm btn-light border">Reserve</a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModalLabel">Filter Toys</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Index" method="get">
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Development Goal</label>
+                        <select class="form-select" name="categories" id="developmentGoalFilter">
+                            <option value="">All Categories</option>
+                            <option value="Cognitive" selected='@(ViewBag.SelectedCategory == "Cognitive")'>Cognitive</option>
+                            <option value="Social and Emotional" selected='@(ViewBag.SelectedCategory == "Social and Emotional")'>Social and Emotional</option>
+                            <option value="Sensory" selected='@(ViewBag.SelectedCategory == "Sensory")'>Sensory</option>
+                            <option value="Physical" selected='@(ViewBag.SelectedCategory == "Physical")'>Physical</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Material</label>
+                        <select class="form-select" name="materials" id="materialFilter">
+                            <option value="">All Materials</option>
+                            <option value="Wood" selected='@(ViewBag.SelectedMaterial == "Wood")'>Wood</option>
+                            <option value="Plastic" selected='@(ViewBag.SelectedMaterial == "Plastic")'>Plastic</option>
+                            <option value="Plush" selected='@(ViewBag.SelectedMaterial == "Plush")'>Plush</option>
+                            <option value="Metal" selected='@(ViewBag.SelectedMaterial == "Metal")'>Metal</option>
+                            <option value="Rubber" selected='@(ViewBag.SelectedMaterial == "Rubber")'>Rubber</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary me-2">Clear Filters</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        setTimeout(function() { $('.alert').fadeOut('slow'); }, 5000);
+    </script>
+}

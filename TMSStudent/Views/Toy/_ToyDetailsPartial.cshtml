@@ -1,0 +1,22 @@
+@model TMS_SharedLibrary.Models.Toy
+
+<div>
+    <h4>@Model.Name</h4>
+    <p><strong>Description:</strong> @Model.Description</p>
+    @if (!string.IsNullOrEmpty(Model.AdditionalInformation))
+    {
+        <p><strong>Additional Information:</strong> @Model.AdditionalInformation</p>
+    }
+    <p><strong>Category:</strong> @Model.Category</p>
+    <p><strong>Material:</strong> @Model.Material</p>
+    <p><strong>Location:</strong> @Model.LocationCode</p>
+
+    <p class="badge @(Model.IsAvailable ? "bg-success" : "bg-danger")"><strong>Available:</strong> @(Model.IsAvailable ? "Available" : "Borrowed")</p>
+
+    <p><strong>Managed By:</strong> @Model.ManagedBy</p>
+
+    @if (!string.IsNullOrEmpty(Model.ImagePath))
+    {
+        <img src="@Model.ImagePath" class="img-fluid mt-2" />
+    }
+</div>

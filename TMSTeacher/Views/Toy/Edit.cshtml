@@ -1,0 +1,126 @@
+@model TMS_SharedLibrary.Models.Toy
+
+@{
+    ViewData["Title"] = "Edit Toy";
+    var fileName = System.IO.Path.GetFileName(Model.ImagePath ?? "");
+    var imgUrl = string.IsNullOrWhiteSpace(fileName) ? "" : Url.Content("~/toy-images/" + fileName);
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Edit Toy</h3>
+        </div>
+
+        <div class="card-body">
+            <form asp-action="Edit" enctype="multipart/form-data">
+                <input type="hidden" asp-for="ToyId" />
+                <input type="hidden" asp-for="IsAvailable" />
+                <input type="hidden" asp-for="ImagePath" />
+
+                <div class="row g-4">
+                    <div class="col-md-7">
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Toy Name <span style="color: red;">*</span></label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="LocationCode" class="form-label">Toy Location <span style="color: red;">*</span></label>
+                            <input asp-for="LocationCode" class="form-control" />
+                            <span asp-validation-for="LocationCode" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Material" class="form-label">Material</label>
+                            <select asp-for="Material" class="form-select">
+                                <option value="">-- Select Material --</option>
+                                <option>Wood</option>
+                                <option>Plastic</option>
+                                <option>Plush</option>
+                                <option>Metal</option>
+                                <option>Rubber</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Category" class="form-label">Development Goal</label>
+                            <select asp-for="Category" class="form-select">
+                                <option value="">-- Select Development Goal --</option>
+                                <option>Cognitive</option>
+                                <option>Social and Emotional (Dramatic Play)</option>
+                                <option>Sensory</option>
+                                <option>Physical</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-5 text-center">
+                        <label class="form-label">Current Image</label>
+
+                        <img id="imagePreview"
+                             class="img-fluid rounded border mb-3"
+                             style="max-height: 220px; object-fit: contain; display:none;" />
+
+                        <input type="file" name="imageFile" id="imageInput"
+                               class="form-control" accept="image/*" />
+
+                        <span asp-validation-for="ImagePath" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Description" class="form-label">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="AdditionalInformation" class="form-label">Additional Information</label>
+                        <textarea asp-for="AdditionalInformation" class="form-control" rows="3"></textarea>
+                    </div>
+
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </div>
+
+                <div asp-validation-summary="ModelOnly" class="text-danger mt-2"></div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const input = document.getElementById('imageInput');
+            const preview = document.getElementById('imagePreview');
+            const existingUrl = '@imgUrl';
+
+            if (existingUrl && existingUrl.length > 0) {
+                preview.src = existingUrl;
+                preview.style.display = 'block';
+            }
+
+            input.addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = ev => {
+                    preview.src = ev.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+    </script>
+}

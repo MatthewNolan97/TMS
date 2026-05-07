@@ -1,0 +1,33 @@
+﻿<button id="backupBtn" class="btn btn-primary">Create Backup</button>
+<select id="backupList">
+    <option value="">-- Select a backup --</option>
+</select>
+<button id="restoreBtn" class="btn btn-warning">Restore Selected Backup</button>
+
+<div id="statusMessage"></div>
+<script>
+        $(document).ready(function () {
+        $.get('/Backup/GetBackups', function (res) {
+            res.forEach(function (file) {
+                $('#backupList').append(`<option value="${file}">${file}</option>`);
+            });
+        });
+    });
+
+    $('#backupBtn').click(function () {
+        $.post('/Backup/CreateBackup', function (res) {
+            $('#statusMessage').text(res.message);
+        });
+    });
+
+    $('#restoreBtn').click(function () {
+        const selected = $('#backupList').val();
+        if (!selected) return alert('Please select a backup first.');
+
+        if (!confirm('This will OVERWRITE your current database. Are you sure?')) return;
+
+        $.post('/Backup/RestoreBackup', { fileName: selected }, function (res) {
+            $('#statusMessage').text(res.message);
+        });
+    });
+</script>

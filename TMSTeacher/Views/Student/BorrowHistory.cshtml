@@ -1,0 +1,67 @@
+@model IEnumerable<TMS_SharedLibrary.Models.ToyLoan>
+
+@{
+    ViewData["Title"] = "Borrow History";
+    var studentName = ViewBag.StudentName as string;
+}
+
+<div class="tms-layout">
+    <main class="tms-main">
+        <h2 class="tms-title tms-fade-in">
+            Borrow History for @studentName
+        </h2>
+
+        <form asp-action="Download" method="post">
+            <input type="hidden" name="studentId" value="@ViewBag.StudentId" />
+            <button type="submit" class="tms-btn" style="margin-bottom:20px">
+                <span class="tms-btn-text">Export PDF</span>
+            </button>
+        </form>
+
+        <div class="tms-history-container tms-fade-in">
+            @if (Model.Any())
+            {
+                <div class="tms-history-header">
+                    <div class="tms-history-header-cell">Toy Name</div>
+                    <div class="tms-history-header-cell">Borrowed Date</div>
+                    <div class="tms-history-header-cell">Due Date</div>
+                    <div class="tms-history-header-cell">Returned Date</div>
+                    <div class="tms-history-header-cell">Status</div>
+                </div>
+
+                @foreach (var item in Model)
+                {
+                    <div class="tms-history-row">
+                        <div class="tms-history-cell">@item.Toy.Name</div>
+                        <div class="tms-history-cell">@item.BorrowDate.ToString("yyyy-MM-dd")</div>
+                        <div class="tms-history-cell">@item.DueDate.ToString("yyyy-MM-dd")</div>
+                        <div class="tms-history-cell">@(item.ReturnDate?.ToString("yyyy-MM-dd") ?? "-")</div>
+                        <div class="tms-history-cell">
+                            <span class="tms-status tms-status-@(item.ReturnDate == null ? (item.DueDate < DateOnly.FromDateTime(DateTime.Today) ? "overdue" : "active") : "returned")">
+                                @if (item.ReturnDate == null)
+                                {
+                                    @(item.DueDate < DateOnly.FromDateTime(DateTime.Today) ? "Overdue" : "Active")
+                                }
+                                else
+                                {
+                                    @:Returned
+                                }
+                            </span>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="tms-no-data">No borrow history found for this student.</div>
+            }
+        </div>
+
+        <div class="tms-actions tms-mt-4">
+            <a asp-action="Index" class="tms-btn">
+                <span class="tms-btn-text">Back to Students</span>
+            </a>
+        </div>
+    </main>
+</div>
+

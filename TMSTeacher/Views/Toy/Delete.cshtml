@@ -1,0 +1,61 @@
+@model TMS_SharedLibrary.Models.Toy
+@{
+    ViewData["Title"] = "Delete Toy";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm rounded-3 border-0">
+                <div class="card-header bg-danger text-white rounded-top-3">
+                    <h4 class="mb-0">Delete Toy</h4>
+                </div>
+
+                <div class="card-body">
+
+                    <p class="text-muted">
+                        Are you sure you want to <strong class="text-danger">permanently delete</strong> this toy?
+                    </p>
+
+                    <div class="mb-3">
+                        <strong>Name:</strong> @Model.Name
+                    </div>
+                    <div class="mb-3">
+                        <strong>Description:</strong> @Model.Description
+                    </div>
+                    <div class="mb-3">
+                        <strong>Category:</strong> @Model.Category
+                    </div>
+                    <div class="mb-3">
+                        <strong>Material:</strong> @Model.Material
+                    </div>
+                    <div class="mb-3">
+                        <strong>Location:</strong> @Model.LocationCode
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.AdditionalInformation))
+                    {
+                        <div class="mb-3">
+                            <strong>Additional Information:</strong> @Model.AdditionalInformation
+                        </div>
+                    }
+                    <div class="mb-3">
+                        <strong>Available:</strong>
+                        <span class="badge @(Model.IsAvailable ? "bg-success" : "bg-danger")">
+                            @(Model.IsAvailable ? "Available" : "Borrowed")
+                        </span>
+                    </div>
+
+                    <form asp-action="Delete" asp-route-id="@Model.ToyId" method="post">
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-danger px-4">Delete</button>
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

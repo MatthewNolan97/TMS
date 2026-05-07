@@ -1,0 +1,63 @@
+﻿@model IEnumerable<TMS_SharedLibrary.ViewModels.StudentViewModel>
+
+@{
+    ViewData["Title"] = "Manage Students";
+}
+
+<div class="tms-layout">
+
+    <main class="tms-main">
+        <h2 class="tms-title tms-fade-in">
+            Manage Students
+        </h2>
+
+        <div class="tms-filter-container tms-fade-in" style="--tms-delay: 200ms">
+            <label class="tms-filter-label">
+                Filter:
+            </label>
+
+            <select class="tms-filter-select">
+                <option value="">All Students</option>
+            </select>
+        </div>
+
+        <div class="tms-students-container tms-fade-in" style="--tms-delay: 400ms">
+            <div class="tms-students-header">
+                <div class="tms-students-header-cell">
+                    <span class="tms-students-header-text">
+                        Student
+                    </span>
+                </div>
+                <div class="tms-students-header-cell">
+                    <span class="tms-students-header-text">
+                        Actions
+                    </span>
+                </div>
+            </div>
+
+            @{
+                int index = 1;
+                foreach (var item in Model)
+                {
+                    <div class="tms-student-row tms-fade-in" style="--tms-delay: @(index * 100)ms">
+                        <div class="tms-student-cell">
+                            <span class="tms-student-name">
+                                @item.FirstName @item.LastName
+                            </span>
+       
+                        </div>
+                        <div class="tms-actions">
+
+                            <a asp-action="BorrowHistory" asp-route-id="@item.StudentId" class="tms-btn">
+                                <span class="tms-btn-text">
+                                    View Borrow History
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                    index++;
+                }
+            }
+        </div>
+    </main>
+</div>

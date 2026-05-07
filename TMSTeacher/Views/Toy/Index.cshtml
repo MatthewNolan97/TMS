@@ -1,0 +1,115 @@
+﻿@model IEnumerable<TMS_SharedLibrary.Models.Toy>
+@using System.IO
+@{
+    ViewData["Title"] = "Available Toys";
+}
+
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-5">Toy Management System</h1>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null) {
+        <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+    }
+
+    @if (TempData["SuccessMessage"] != null) {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+
+    <div class="toy-actions mb-3">
+        <a asp-action="Create" class="btn btn-secondary me-2">Add Toy</a>
+        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#filterModal">Filter</button>
+    </div>
+
+    <h3 class="h5 mb-3">Available Toys</h3>
+
+    <div class="row g-4">
+        @if (Model != null && Model.Any()) {
+            @foreach (var item in Model) {
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="card toy-card h-100" data-url="@Url.Action("Details", new { id = item.ToyId })">
+                        <div class="toy-img-wrapper">
+                            @if (!string.IsNullOrEmpty(item.ImagePath)) {
+                                var fileName = System.IO.Path.GetFileName(item.ImagePath ?? "");
+                                var imgUrl = string.IsNullOrWhiteSpace(fileName) ? "" : Url.Content("~/toy-images/" + fileName);
+
+                                <img src="@Url.Content(imgUrl)" class="toy-img" alt="@item.Name" />
+                            } else {
+                                <div class="toy-img no-img">No Image</div>
+                            }
+                        </div>
+                        <div class="card-body">
+                            <h5 class="text-muted mb-2">@item.Name</h5>
+                            <h6 class="fw-bold mb-1">@item.LocationCode</h6>
+                        </div>
+                        <div class="card-footer bg-white border-0 pb-3">
+                            <div class="toy-btn-row">
+                                <a asp-action="Edit" asp-route-id="@item.ToyId" class="btn btn-sm btn-secondary">Update</a>
+                                <a asp-action="Delete" asp-route-id="@item.ToyId" class="btn btn-sm btn-danger">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        } else {
+            <div class="col-12">
+                <div class="alert alert-info">No toys found matching the selected filters.</div>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModalLabel">Filter</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form asp-action="Index" method="get">
+                <div class="modal-body">
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Development Goal</label>
+                        <select class="form-select" name="categories" id="developmentGoalFilter">
+                            <option value="">Select One</option>
+                            <option value="Cognitive" selected='@(ViewBag.SelectedCategory == "Cognitive")'>Cognitive</option>
+                            <option value="Social and Emotional" selected='@(ViewBag.SelectedCategory == "Social and Emotional")'>Social and Emotional (Dramatic Play)</option>
+                            <option value="Sensory" selected='@(ViewBag.SelectedCategory == "Sensory")'>Sensory</option>
+                            <option value="Physical" selected='@(ViewBag.SelectedCategory == "Physical")'>Physical</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Material</label>
+                        <select class="form-select" name="materials" id="materialFilter">
+                            <option value="">Select One</option>
+                            <option value="Wood" selected='@(ViewBag.SelectedMaterial == "Wood")'>Wood</option>
+                            <option value="Plastic" selected='@(ViewBag.SelectedMaterial == "Plastic")'>Plastic</option>
+                            <option value="Plush" selected='@(ViewBag.SelectedMaterial == "Plush")'>Plush</option>
+                            <option value="Metal" selected='@(ViewBag.SelectedMaterial == "Metal")'>Metal</option>
+                            <option value="Rubber" selected='@(ViewBag.SelectedMaterial == "Rubber")'>Rubber</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Apply Filters</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary me-2">Clear Filters</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".toy-card").forEach(card => {
+            card.addEventListener("click", (e) => {
+                if (e.target.closest(".btn")) return;
+                const url = card.dataset.url;
+                if (url) {
+                    window.location.href = url;
+                }
+            });
+        });
+    });
+</script>

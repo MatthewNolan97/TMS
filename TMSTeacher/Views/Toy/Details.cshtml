@@ -1,0 +1,78 @@
+@model TMS_SharedLibrary.Models.Toy
+
+@{
+    ViewData["Title"] = "Details";
+    var fileName = System.IO.Path.GetFileName(Model.ImagePath ?? "");
+    var imgUrl = string.IsNullOrWhiteSpace(fileName) ? "" : Url.Content("~/toy-images/" + fileName);
+}
+
+<div class="form-card">
+    <h1>@Model.Name</h1>
+
+    <div class="row g-4">
+        <div class="col-md-5">
+            @if (!string.IsNullOrEmpty(Model.ImagePath))
+            {
+                <img src="@Url.Content(imgUrl)" alt="Toy image" class="img-fluid rounded" />
+
+            }
+            else
+            {
+                <div class="d-flex align-items-center justify-content-center border rounded" style="height: 220px;">
+                    <span class="text-muted">No Image Available</span>
+                </div>
+            }
+        </div>
+
+        <div class="col-md-7">
+            <dl class="row mb-0">
+                <dt class="col-sm-4">Description</dt>
+                @if (@Model.Description == "" || @Model.Description == null)
+                {
+                    <dd class="col-sm-8">N/A</dd>
+                }
+                else
+                {
+                    <dd class="col-sm-8">@Model.Description</dd>
+                }
+                
+
+                <dt class="col-sm-4">Category</dt>
+                <dd class="col-sm-8">@Model.Category</dd>
+
+                <dt class="col-sm-4">Material</dt>
+                <dd class="col-sm-8">@Model.Material</dd>
+
+                <dt class="col-sm-4">Location</dt>
+                <dd class="col-sm-8">@Model.LocationCode</dd>
+
+                <dt class="col-sm-4">Additional Information</dt>
+                @if (string.IsNullOrEmpty(Model.AdditionalInformation))
+                {
+                    <dd class="col-sm-8">N/A</dd>
+                }
+                else
+                {
+                    <dd class="col-sm-8">@Model.AdditionalInformation</dd>
+                }
+
+                <dt class="col-sm-4">Availability</dt>
+                <dd class="col-sm-8">
+                    @if (Model.IsAvailable)
+                    {
+                        <span class="badge bg-success">Available</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Borrowed</span>
+                    }
+                </dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="form-actions mt-4">
+        <a asp-action="Edit" asp-route-id="@Model.ToyId" class="btn btn-primary">Edit</a>
+        <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+    </div>
+</div>
